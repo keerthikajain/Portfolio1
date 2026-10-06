@@ -15,7 +15,6 @@ const dialog=$('#project-dialog');
 document.querySelectorAll('[data-project]').forEach(button=>button.addEventListener('click',()=>{const project=projects[button.dataset.project];$('#dialog-title').textContent=project.title;$('#dialog-category').textContent=project.category;$('#dialog-description').textContent=project.description;$('#dialog-tags').replaceChildren(...project.tags.map(tag=>{const element=document.createElement('span');element.textContent=tag;return element;}));$('#dialog-links').replaceChildren(...project.links.map(([label,url])=>{const a=document.createElement('a');a.textContent=label+' ↗';a.href=url;a.target='_blank';a.rel='noopener noreferrer';return a;}));dialog.showModal();}));
 $('#dialog-close').addEventListener('click',()=>dialog.close());
 dialog.addEventListener('click',event=>{if(event.target===dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();}});
-document.querySelectorAll('[data-filter]').forEach(button=>button.addEventListener('click',()=>{const filter=button.dataset.filter;let count=0;document.querySelectorAll('[data-filter]').forEach(item=>{const active=item===button;item.classList.toggle('active',active);item.setAttribute('aria-pressed',String(active));});document.querySelectorAll('.project').forEach(project=>{project.hidden=filter!=='all'&&project.dataset.category!==filter;if(!project.hidden){count++;project.classList.add('visible');}});$('#filter-status').textContent=`Showing ${count} ${count===1?'project':'projects'}.`;}));
 $('#copy-email').addEventListener('click',async()=>{try{await navigator.clipboard.writeText('jainkeerthika006@gmail.com');$('#copy-status').textContent='Email address copied.';}catch{$('#copy-status').textContent='Copy this address: jainkeerthika006@gmail.com';}});
 $('#contact-form').addEventListener('submit',event=>{event.preventDefault();const form=event.currentTarget;if(!form.reportValidity())return;const values=new FormData(form);const subject=`Portfolio enquiry from ${values.get('name')}`;const body=`Hi Keerthika,\n\n${values.get('message')}\n\nFrom: ${values.get('name')}\nReply to: ${values.get('email')}`;window.location.href=`mailto:jainkeerthika006@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;$('#form-status').textContent='Your draft is ready for your email app. If it does not open, use the email link above.';});
 // Acoustic cues were extracted from this exact recording using Rhubarb.
@@ -40,36 +39,26 @@ audio.addEventListener('ended',()=>{stopMouth();controls('Replay introduction','
 audio.addEventListener('error',()=>{stopMouth();controls('Try introduction again','▷');$('#audio-status').textContent='Audio could not load. Check your connection and try again.';});
 
 
-// Spatial presentation uses native scrolling. No wheel/touch events are intercepted.
+// Native document flow: no pinned scenes, artificial scroll distances, or wheel interception.
 (()=>{
  const root=document.documentElement,body=document.body;
- const hero=document.querySelector('.scroll-hero'),skills=document.querySelector('#skills');
- const about=document.querySelector('#about'),passport=document.querySelector('.passport');
- const gallery=document.querySelector('#work'),cards=[...document.querySelectorAll('.project')];
- const tabs=[...document.querySelectorAll('[data-slide]')];
- const motionButton=document.querySelector('#motion-toggle');
- const reduced=matchMedia('(prefers-reduced-motion: reduce)'),small=matchMedia('(max-width: 800px)');
- let enabled=!reduced.matches,scheduled=0,active=-1,metrics={};
- const clamp=(value,min=0,max=1)=>Math.min(max,Math.max(min,value));
- function measure(){const y=scrollY;metrics={heroTop:hero.getBoundingClientRect().top+y,heroRange:Math.max(1,hero.offsetHeight-innerHeight),skillsTop:skills.getBoundingClientRect().top+y,skillsHeight:skills.offsetHeight,aboutTop:about.getBoundingClientRect().top+y,galleryTop:gallery.getBoundingClientRect().top+y,galleryRange:Math.max(1,gallery.offsetHeight-innerHeight),maxScroll:Math.max(1,document.documentElement.scrollHeight-innerHeight)};request();}
- function request(){if(!scheduled)scheduled=requestAnimationFrame(render);}
- function render(){scheduled=0;const y=scrollY;root.style.setProperty('--progress',clamp(y/metrics.maxScroll));const spatial=enabled&&!small.matches;
-  root.style.setProperty('--hero-progress',spatial?clamp((y-metrics.heroTop)/metrics.heroRange):0);
-  const depth=clamp((y+innerHeight*.75-metrics.skillsTop)/(metrics.skillsHeight*.9));root.style.setProperty('--skill-depth',enabled?depth:0);
-  const aboutProgress=clamp((y+innerHeight*.7-metrics.aboutTop)/(innerHeight*.7));passport.style.setProperty('--passport-turn',spatial?`${-18+aboutProgress*18}deg`:'0deg');
-  const progress=clamp((y-metrics.galleryTop)/metrics.galleryRange);root.style.setProperty('--gallery-progress',progress);
-  const index=spatial?Math.round(progress*2):-1;
-  cards.forEach((card,i)=>{if(spatial){const offset=i-progress*2;const distance=Math.abs(offset);card.style.transform=`translate3d(${offset*112}%,${distance*16}px,${-distance*150}px) rotateY(${-offset*15}deg) rotateZ(${offset*1.2}deg)`;card.style.opacity=String(clamp(1-distance*.5,.12,1));card.style.zIndex=String(10-Math.round(distance*3));card.inert=i!==index;card.style.pointerEvents=i===index?'auto':'none';}else{card.style.transform='none';card.style.opacity='1';card.style.zIndex='auto';card.inert=false;card.style.pointerEvents='auto';}});
-  if(index!==active){active=index;tabs.forEach((tab,i)=>tab.setAttribute('aria-pressed',String(i===index)));if(index>=0)document.querySelector('#gallery-count').textContent=`0${index+1} / 03`;}
- }
- function motion(){body.classList.toggle('motion-off',!enabled);motionButton.setAttribute('aria-pressed',String(enabled));motionButton.innerHTML=`Motion ${enabled?'on':'off'} <span aria-hidden="true">✳</span>`;measure();body.dispatchEvent(new CustomEvent('portfolio-motion',{detail:enabled}));}
- motionButton.addEventListener('click',()=>{enabled=!enabled;motion();});
- reduced.addEventListener('change',()=>{enabled=!reduced.matches;motion();});small.addEventListener('change',measure);
- tabs.forEach((tab,i)=>tab.addEventListener('click',()=>{const top=metrics.galleryTop+metrics.galleryRange*(i/2);scrollTo({top,behavior:enabled&&!reduced.matches?'smooth':'instant'});}));
- document.querySelectorAll('.skill-key').forEach(tile=>{const describe=()=>{document.querySelector('#skill-detail').textContent=tile.dataset.skill;};tile.addEventListener('pointerenter',describe);tile.addEventListener('focus',describe);tile.addEventListener('click',describe);});
- passport.addEventListener('pointermove',event=>{if(!enabled||event.pointerType==='touch')return;const box=passport.getBoundingClientRect();passport.style.setProperty('--tilt-y',`${((event.clientY-box.top)/box.height-.5)*-8}deg`);});passport.addEventListener('pointerleave',()=>passport.style.setProperty('--tilt-y','0deg'));
- addEventListener('scroll',request,{passive:true});addEventListener('resize',measure);new ResizeObserver(measure).observe(body);document.fonts?.ready.then(measure);
- motion();
+ const toggle=document.querySelector('#motion-toggle');
+ const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+ const coarse=matchMedia('(pointer: coarse)');
+ const tabs=[...document.querySelectorAll('[data-capability]')];
+ const panels=[...document.querySelectorAll('.capability-panel')];
+ const stage=document.querySelector('.capability-stack');
+ let enabled=!reduced.matches,frame=0,maxScroll=1;
+ function progress(){frame=0;root.style.setProperty('--progress',Math.min(1,scrollY/maxScroll));}
+ function schedule(){if(!frame)frame=requestAnimationFrame(progress);}
+ function measure(){maxScroll=Math.max(1,document.documentElement.scrollHeight-innerHeight);schedule();}
+ function motion(){body.classList.toggle('motion-off',!enabled);toggle.setAttribute('aria-pressed',String(enabled));toggle.title=enabled?'Turn decorative motion off':'Turn decorative motion on';toggle.innerHTML=`Motion ${enabled?'on':'off'} <span aria-hidden="true">✳</span>`;body.dispatchEvent(new CustomEvent('portfolio-motion',{detail:enabled}));document.querySelectorAll('[data-depth]').forEach(el=>{el.style.setProperty('--lean-x','0deg');el.style.setProperty('--lean-y','0deg');});}
+ toggle.addEventListener('click',()=>{enabled=!enabled;motion();});reduced.addEventListener('change',()=>{enabled=!reduced.matches;motion();});
+ function select(index,focus=false){tabs.forEach((tab,i)=>{tab.setAttribute('aria-selected',String(i===index));tab.tabIndex=i===index?0:-1;if(focus&&i===index)tab.focus();});panels.forEach((panel,i)=>{const active=i===index;const depth=(i-index+panels.length)%panels.length;panel.classList.toggle('is-active',active);panel.setAttribute('aria-hidden',String(!active));panel.inert=!active;panel.tabIndex=active?0:-1;panel.style.setProperty('--layer',depth);panel.style.zIndex=String(3-depth);});}
+ tabs.forEach((tab,i)=>{tab.addEventListener('click',()=>select(i));tab.addEventListener('keydown',event=>{let next;if(event.key==='ArrowDown'||event.key==='ArrowRight')next=(i+1)%tabs.length;if(event.key==='ArrowUp'||event.key==='ArrowLeft')next=(i+tabs.length-1)%tabs.length;if(event.key==='Home')next=0;if(event.key==='End')next=tabs.length-1;if(next!==undefined){event.preventDefault();select(next,true);}});});
+ // Pointer depth is bounded; it never changes text position or the document's scroll distance.
+ [document.querySelector('.character-space'),document.querySelector('.passport'),stage].forEach(el=>{el.dataset.depth='';el.addEventListener('pointermove',event=>{if(!enabled||coarse.matches||event.pointerType==='touch')return;const box=el.getBoundingClientRect();el.style.setProperty('--lean-x',`${((event.clientY-box.top)/box.height-.5)*-5}deg`);el.style.setProperty('--lean-y',`${((event.clientX-box.left)/box.width-.5)*6}deg`);});el.addEventListener('pointerleave',()=>{el.style.setProperty('--lean-x','0deg');el.style.setProperty('--lean-y','0deg');});});
+ addEventListener('scroll',schedule,{passive:true});addEventListener('resize',measure);new ResizeObserver(measure).observe(body);document.fonts?.ready.then(measure);select(0);motion();measure();
 })();
 
 // Sound-reactive light and a restrained greeting nod use the real playback clock.
