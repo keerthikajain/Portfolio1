@@ -1,67 +1,52 @@
-# Keerthika Jain — a curious mind, in motion
+# Keerthika Jain — The build desk
 
-An independently deployable portfolio inspired by the supplied scrolling reference: warm cream and navy colors, a fully visible name, a layered character, interactive capability panels, and projects in natural document flow. Built with HTML, CSS, and JavaScript. No Lovable service, badge, subscription, API key, or runtime package is required.
+A standalone portfolio built with HTML, CSS and JavaScript. The laptop, phone and notebook are interactive CSS 3D objects linked to the project notes. There is no scroll hijacking, WebGL dependency, paid service or site-builder runtime.
 
-## Deploy to GitHub and Vercel
+## Run in VS Code
 
-1. Extract the ZIP and upload its contents to a new GitHub repository. Upload the files, not just the ZIP. Keep `index.html`, `package.json`, `build.cjs`, `vercel.json`, and `assets/` at the repository root.
-2. In Vercel, choose Add New → Project and import that repository.
-3. Choose Other as the framework preset and keep the Root Directory at the repository root.
-4. Deploy. `vercel.json` supplies `npm run build` as the build command and `dist` as the output directory. No environment variables are needed.
-
-Configuration reference: https://vercel.com/docs/project-configuration/vercel-json
-
-## Preview and build locally
-
-Serve this folder using VS Code Live Server or, if Python is installed:
+Open the folder in VS Code. Use the Live Server extension to open `index.html`, or run a local server:
 
 ```sh
-python -m http.server 8000
+python -m http.server 5500
 ```
 
-Open http://localhost:8000. Using a server allows the speech cue JSON to load correctly.
+Then open `http://localhost:5500`. Use an HTTP server rather than opening the HTML file directly, because the speech controller fetches its cue file.
 
-With Node.js 18 or newer, create deployment output using:
+## Build and deploy
 
 ```sh
 npm run build
 ```
 
-There are no npm dependencies to install. The build copies the website into `dist/`.
+Vercel uses `npm run build` and the `dist` output directory, as configured in `vercel.json`. No runtime npm dependencies are needed. Changes should be reviewed on their branch before merging into the deployment branch.
 
-## Flow and interaction
+## Editing
 
-The page uses native scrolling without pinned scenes or extra scroll distances. The complete name is the main heading, separated from the character. Every project stays in the document flow and is reachable without waiting for a scroll animation.
+- `index.html`: biography, project stories, links, desktop objects and optional introduction.
+- `styles.css`: complete responsive design, dark/light palettes and CSS 3D object geometry.
+- `script.js`: project selection, keyboard tabs, sample tasks, theme and motion controls, introduction dialog, email draft and copy action.
+- `speech.js`: original female recording and audio-playhead-driven vector lip poses.
+- `assets/`: original character/audio, speech alignment and locally captured project screenshots.
+- `build.cjs`: copies the site into `dist`.
 
-Skills are grouped into three interactive layers: interfaces, backend systems, and data/machine learning. Select a category to bring its illustrated panel forward. The tabs support pointer, touch, arrow keys, Home, and End. Inactive panels are excluded from focus and assistive navigation.
+The theme is retained when local storage is available. Decorative motion follows the operating-system preference and the Motion button. Scrolling remains native. The introduction plays only after a visitor requests it, and closing the dialog pauses audio.
 
-Bounded pointer tilt adds depth to the character, profile card, and skills panels without moving body text. The Motion on/off control and operating system reduced-motion preference disable these decorative movements. No wheel or touch events are intercepted.
+## Project evidence and attribution
 
-The spatial effects use CSS perspective and 3D transforms. The supplied character is a 2D illustration within these layers, not a fully rigged 3D person.
+Project copy is based on the public repositories linked from the portfolio. No unverified performance metrics are presented.
 
-## Character and voice
+- **HAR Router:** the screenshot renders the actual `frontend/src/pages/RunPrediction.jsx` component from `keerthikajain/HARtraining` locally, using its own styles. It shows the idle interface, with no backend connected and no fabricated prediction results.
+- **LearnTrack Pro:** the purple desk phone and interactive task list are portfolio illustrations inspired by the project's documented course/assignment/study workflow. They are not screenshots or an embedded copy of the application. This is labelled on the page. The actual demo, APK and repository remain linked.
+- **Comparely:** the screenshot renders the actual landing component from the `master` branch of `keerthikajain/Comparely_ojt_project`, locally and without a backend. The project is described as collaborative and the linked repository as a fork. The original upstream is `sristyanand00/Comparely_ojt_project`.
 
-The character, mouth assets, and original recorded female voice are reused from the supplied portfolio. The complete available artwork is preserved. The head gently settles toward the visitor and gives a restrained greeting nod during playback. Mouth shapes follow the recording's actual playback position, with resting, open, rounded, and wide shapes.
+The desk screen, phone and notebook are visual navigation objects. The live interaction on this portfolio is project selection and the sample study checklist; no live machine learning inference, product prices or user data are claimed.
 
-`assets/hero-intro.cues.json` contains acoustic cue estimates generated from this exact MP3 using Rhubarb Lip Sync's phonetic recognizer. They are estimates, not studio-grade phoneme alignment. Pausing, buffering, seeking, and completion reset or resynchronize the animation. If you change the MP3, regenerate the cue file for the new recording.
+## Character and speech limitations
 
-The Web Audio analyser drives subtle lighting and voice bars from the recording's waveform. No microphone is requested. Audio begins only when the visitor presses the introduction button. The original MP3 is unchanged; this package does not assert whether its source was human or synthesized speech.
+The original `hero-intro.mp3` is unchanged. The character remains an illustrated 2D asset, shown in an optional introduction dialog. It is not a fully rigged 3D avatar. The lip controller uses eight vector poses, with transitions based on `audio.currentTime` and pause/seek/playback events rather than random timers.
 
-## Edit the content
+`hero-intro.phonemes.json` contains PocketSphinx 5.0.4 transcript-guided estimates for this recording. The name pronunciation supplied to the aligner was `K IH R TH IH K AH`. These are estimates, not studio-authored visemes. A different recording needs new timing data. Natural talking-head motion matching a video reference requires an authored clip or a rigged character; this implementation does not claim that fidelity.
 
-- `index.html`: visible text, project cards, skills, social links, and contact email.
-- `styles.css`: colors, typography, responsive layouts, and 3D presentation.
-- `script.js`: project detail text/links, scroll presentation, interactions, contact draft, and audio synchronization.
-- `assets/`: character images, mouth shapes, voice recording, cue data, and favicon.
+## Contact
 
-Update both `index.html` and `script.js` when changing the contact email. Google Fonts are optional; system fonts are used if the font service is unavailable. The project visuals are interface concepts or illustrations, not project screenshots or measured results.
-
-## Contact behavior
-
-The form opens a filled-in email draft in the visitor's email application. It does not send or store messages on a server. The visitor sends the draft themselves. Direct email and copy-email options are also available.
-
-## Validation and assets
-
-The source builds without third-party npm dependencies. Browser checks cover full-name visibility and overflow at five viewport widths, capability tab selection and keyboard navigation, every project dialog, audio playback/pause, reduced motion, the motion toggle, and mobile navigation. Deployment configuration is included; this package has not been deployed to your Vercel account.
-
-Character and voice assets come from the portfolio you supplied. The website implementation and CSS project illustrations were created for this standalone version.
+The contact form opens a draft in the visitor's email application. It does not send a message or use a backend. GitHub, LinkedIn, demo and APK links open their respective external destinations.

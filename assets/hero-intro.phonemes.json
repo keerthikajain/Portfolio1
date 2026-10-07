@@ -1,0 +1,181 @@
+{
+  "method": "PocketSphinx 5.0.4 transcript-guided alignment; estimated timings, not studio-authored visemes",
+  "transcript": "Hi, welcome to my portfolio. I'm Keerthika.",
+  "phonemes": [
+    {
+      "phone": "SIL",
+      "start": 0.0,
+      "end": 0.09
+    },
+    {
+      "phone": "HH",
+      "start": 0.09,
+      "end": 0.24
+    },
+    {
+      "phone": "AY",
+      "start": 0.24,
+      "end": 0.66
+    },
+    {
+      "phone": "SIL",
+      "start": 0.66,
+      "end": 0.99
+    },
+    {
+      "phone": "W",
+      "start": 0.99,
+      "end": 1.06
+    },
+    {
+      "phone": "EH",
+      "start": 1.06,
+      "end": 1.12
+    },
+    {
+      "phone": "L",
+      "start": 1.12,
+      "end": 1.21
+    },
+    {
+      "phone": "K",
+      "start": 1.21,
+      "end": 1.3
+    },
+    {
+      "phone": "AH",
+      "start": 1.3,
+      "end": 1.36
+    },
+    {
+      "phone": "M",
+      "start": 1.36,
+      "end": 1.58
+    },
+    {
+      "phone": "SIL",
+      "start": 1.58,
+      "end": 1.76
+    },
+    {
+      "phone": "T",
+      "start": 1.76,
+      "end": 1.86
+    },
+    {
+      "phone": "AH",
+      "start": 1.86,
+      "end": 1.91
+    },
+    {
+      "phone": "M",
+      "start": 1.91,
+      "end": 1.97
+    },
+    {
+      "phone": "AY",
+      "start": 1.97,
+      "end": 2.08
+    },
+    {
+      "phone": "P",
+      "start": 2.08,
+      "end": 2.2
+    },
+    {
+      "phone": "AO",
+      "start": 2.2,
+      "end": 2.26
+    },
+    {
+      "phone": "R",
+      "start": 2.26,
+      "end": 2.3
+    },
+    {
+      "phone": "T",
+      "start": 2.3,
+      "end": 2.33
+    },
+    {
+      "phone": "F",
+      "start": 2.33,
+      "end": 2.45
+    },
+    {
+      "phone": "OW",
+      "start": 2.45,
+      "end": 2.54
+    },
+    {
+      "phone": "L",
+      "start": 2.54,
+      "end": 2.63
+    },
+    {
+      "phone": "IY",
+      "start": 2.63,
+      "end": 2.74
+    },
+    {
+      "phone": "OW",
+      "start": 2.74,
+      "end": 3.0
+    },
+    {
+      "phone": "SIL",
+      "start": 3.0,
+      "end": 3.53
+    },
+    {
+      "phone": "AY",
+      "start": 3.53,
+      "end": 3.65
+    },
+    {
+      "phone": "M",
+      "start": 3.65,
+      "end": 3.74
+    },
+    {
+      "phone": "K",
+      "start": 3.74,
+      "end": 3.86
+    },
+    {
+      "phone": "IH",
+      "start": 3.86,
+      "end": 3.92
+    },
+    {
+      "phone": "R",
+      "start": 3.92,
+      "end": 3.98
+    },
+    {
+      "phone": "TH",
+      "start": 3.98,
+      "end": 4.06
+    },
+    {
+      "phone": "IH",
+      "start": 4.06,
+      "end": 4.12
+    },
+    {
+      "phone": "K",
+      "start": 4.12,
+      "end": 4.18
+    },
+    {
+      "phone": "AH",
+      "start": 4.18,
+      "end": 4.34
+    },
+    {
+      "phone": "SIL",
+      "start": 4.34,
+      "end": 4.96
+    }
+  ]
+}
