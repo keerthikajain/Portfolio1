@@ -1,74 +1,26 @@
 'use strict';
-const $ = selector => document.querySelector(selector);
-const menu=$('#menu-toggle'), mobile=$('#mobile-nav');
-function closeMenu(){mobile.hidden=true;menu.setAttribute('aria-expanded','false');menu.setAttribute('aria-label','Open navigation');}
-menu.addEventListener('click',()=>{const open=mobile.hidden;mobile.hidden=!open;menu.setAttribute('aria-expanded',String(open));menu.setAttribute('aria-label',open?'Close navigation':'Open navigation');});
-mobile.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMenu));
-document.addEventListener('keydown',event=>{if(event.key==='Escape')closeMenu();});
-if('IntersectionObserver' in window){document.body.classList.add('js-ready');const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible');observer.unobserve(entry.target);}}),{threshold:.08});document.querySelectorAll('.reveal').forEach(element=>observer.observe(element));}
-const projects={
- har:{title:'HAR Router',category:'MACHINE LEARNING',description:'A human activity recognition project using smartphone accelerometer and gyroscope data. I explored how sensor measurements can become features for a Random Forest classifier, connecting data preparation with model training.',tags:['Python','scikit-learn','Random Forest','Sensor data'],links:[['Source code','https://github.com/keerthikajain/HARtraining'],['Video demo','https://drive.google.com/file/d/1j3ttJqrnkTJgJgoIt3qk88KkVWb9EbmW/view?usp=sharing'],['Design','https://www.figma.com/design/VhponbrtEOi9B0U9P0kytA/HAR-design?node-id=0-1']]},
- learntrack:{title:'LearnTrack Pro',category:'MOBILE',description:'A mobile app for organizing courses, assignments, and study activity. Built with React Native, SQLite, and React Native Paper, it brings everyday learning tasks into one place. This project helped me explore mobile interfaces and local data storage.',tags:['React Native','SQLite','React Native Paper'],links:[['Source code','https://github.com/keerthikajain/LearnTrack-Pro'],['Video demo','https://drive.google.com/file/d/17wntnSdiUVT2z1AWoxUigzRHxwsyX5W2/view?usp=sharing'],['Android APK','https://drive.google.com/file/d/1qRWQTKdGMRtQRPbzD8SWbqWS1UPsAJl4/view?usp=sharing']]},
- comparely:{title:'Comparely',category:'WEB',description:'A grocery price comparison web project that helps people explore their options. Working with React, a MERN stack, and APIs, I explored how to connect product information to an interface that makes comparisons easier.',tags:['React','MERN','API'],links:[['Source code','https://github.com/keerthikajain/Comparely_ojt_project']]}
-};
-const dialog=$('#project-dialog');
-document.querySelectorAll('[data-project]').forEach(button=>button.addEventListener('click',()=>{const project=projects[button.dataset.project];$('#dialog-title').textContent=project.title;$('#dialog-category').textContent=project.category;$('#dialog-description').textContent=project.description;$('#dialog-tags').replaceChildren(...project.tags.map(tag=>{const element=document.createElement('span');element.textContent=tag;return element;}));$('#dialog-links').replaceChildren(...project.links.map(([label,url])=>{const a=document.createElement('a');a.textContent=label+' ↗';a.href=url;a.target='_blank';a.rel='noopener noreferrer';return a;}));dialog.showModal();}));
-$('#dialog-close').addEventListener('click',()=>dialog.close());
-dialog.addEventListener('click',event=>{if(event.target===dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();}});
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+// One project index drives both the desk objects and the accessible project notes.
+const keys=['har','learntrack','comparely'];
+function selectProject(key,{focus=false,scroll=false}={}){
+ if(!keys.includes(key))return;
+ keys.forEach(k=>{const tab=$('#tab-'+k),panel=$('#panel-'+k),active=k===key;tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;panel.hidden=!active;});
+ if(scroll)$('#work').scrollIntoView({behavior:document.body.classList.contains('motion-off')?'instant':'smooth',block:'start'});
+ if(focus)$('#tab-'+key).focus({preventScroll:scroll});
+}
+$$('[data-tab]').forEach((button,index)=>{button.addEventListener('click',()=>selectProject(button.dataset.tab));button.addEventListener('keydown',event=>{let next;if(event.key==='ArrowRight')next=(index+1)%keys.length;if(event.key==='ArrowLeft')next=(index+keys.length-1)%keys.length;if(event.key==='Home')next=0;if(event.key==='End')next=keys.length-1;if(next!==undefined){event.preventDefault();selectProject(keys[next],{focus:true});}});});
+$$('[data-project]').forEach(button=>button.addEventListener('click',event=>{event.preventDefault();selectProject(button.dataset.project,{focus:true,scroll:true});}));
+// Preview tasks are explicitly sample data and live only in the current page.
+function updateTasks(){const done=$$('.demo-tasks input:checked').length;$('#task-progress').style.width=`${done/3*100}%`;$('#task-status').textContent=`${done} of 3 steps complete${done===3?' — a little progress, made.':''}`;}
+$$('.demo-tasks input').forEach(box=>box.addEventListener('change',updateTasks));updateTasks();
+const intro=$('#intro-dialog');
+$$('[data-open-intro]').forEach(button=>button.addEventListener('click',()=>intro.showModal()));$('.dialog-close').addEventListener('click',()=>intro.close());intro.addEventListener('click',e=>{if(e.target!==intro)return;const r=intro.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)intro.close();});
+const theme=$('#theme-toggle');function applyTheme(){const dark=document.documentElement.dataset.theme==='dark';theme.textContent=dark?'◐':'◑';theme.setAttribute('aria-label',`Switch to ${dark?'light':'dark'} theme`);theme.title=theme.getAttribute('aria-label');$('meta[name="theme-color"]').content=dark?'#13161c':'#f2f0ea';}
+theme.addEventListener('click',()=>{document.documentElement.dataset.theme=document.documentElement.dataset.theme==='dark'?'light':'dark';try{localStorage.setItem('desk-theme',document.documentElement.dataset.theme);}catch{}applyTheme();});applyTheme();
+const reduced=matchMedia('(prefers-reduced-motion: reduce)'),motion=$('#motion-toggle'),desk=$('#desk-stage');let enabled=!reduced.matches,frame=0,target=[0,0];
+function updateMotion(){document.body.classList.toggle('motion-off',!enabled);document.documentElement.style.scrollBehavior=enabled?'smooth':'auto';motion.setAttribute('aria-pressed',String(enabled));motion.setAttribute('aria-label',`Turn decorative motion ${enabled?'off':'on'}`);motion.title=motion.getAttribute('aria-label');motion.querySelector('span').textContent=enabled?'on':'off';desk.style.setProperty('--tilt-x','0deg');desk.style.setProperty('--tilt-y','0deg');}
+motion.addEventListener('click',()=>{enabled=!enabled;updateMotion();});reduced.addEventListener('change',()=>{enabled=!reduced.matches;updateMotion();});updateMotion();
+// Gentle depth on the desktop only. No continuous animation loop or wheel handlers.
+desk.addEventListener('pointermove',e=>{if(!enabled||e.pointerType==='touch'||innerWidth<1200)return;const r=desk.getBoundingClientRect();target=[((e.clientY-r.top)/r.height-.5)*-3,((e.clientX-r.left)/r.width-.5)*4];if(!frame)frame=requestAnimationFrame(()=>{frame=0;desk.style.setProperty('--tilt-x',target[0]+'deg');desk.style.setProperty('--tilt-y',target[1]+'deg');});});desk.addEventListener('pointerleave',()=>{cancelAnimationFrame(frame);frame=0;desk.style.setProperty('--tilt-x','0deg');desk.style.setProperty('--tilt-y','0deg');});
 $('#copy-email').addEventListener('click',async()=>{try{await navigator.clipboard.writeText('jainkeerthika006@gmail.com');$('#copy-status').textContent='Email address copied.';}catch{$('#copy-status').textContent='Copy this address: jainkeerthika006@gmail.com';}});
-$('#contact-form').addEventListener('submit',event=>{event.preventDefault();const form=event.currentTarget;if(!form.reportValidity())return;const values=new FormData(form);const subject=`Portfolio enquiry from ${values.get('name')}`;const body=`Hi Keerthika,\n\n${values.get('message')}\n\nFrom: ${values.get('name')}\nReply to: ${values.get('email')}`;window.location.href=`mailto:jainkeerthika006@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;$('#form-status').textContent='Your draft is ready for your email app. If it does not open, use the email link above.';});
-// Acoustic cues were extracted from this exact recording using Rhubarb.
-// The audio element is the only clock: seeking, pausing and buffering reset the mouth.
-const audio=$('#intro-audio'),voice=$('#voice'),mouth=$('#mouth'),head=$('#character-head');
-const shapeFor={A:'rest',X:'rest',B:'wide',G:'wide',C:'open',D:'open',H:'open',E:'round',F:'round'};
-const mouthAssets={open:'assets/hero-mouth-open.png',round:'assets/hero-mouth-round.png',wide:'assets/hero-mouth-wide.png'};
-let cues=[],frame=0,lastShape='rest',ready=false;
-function shapeAt(time){const cue=cues.find(cue=>time>=cue.start&&time<cue.end);return cue?shapeFor[cue.value]||'rest':'rest';}
-function setMouth(shape){if(shape===lastShape)return;lastShape=shape;if(shape==='rest'){mouth.setAttribute('visibility','hidden');return;}mouth.setAttribute('href',mouthAssets[shape]);mouth.setAttribute('visibility','visible');}
-function stopMouth(){cancelAnimationFrame(frame);frame=0;setMouth('rest');}
-function animateMouth(){if(audio.paused||audio.ended)return;setMouth(shapeAt(audio.currentTime));frame=requestAnimationFrame(animateMouth);}
-function controls(label,icon,playing=false){$('#voice-label').textContent=label;$('#voice-icon').textContent=icon;voice.setAttribute('aria-label',label);voice.classList.toggle('playing',playing);}
-const prepared=Promise.all([fetch('assets/hero-intro.cues.json').then(response=>{if(!response.ok)throw Error('Cues unavailable');return response.json();}).then(data=>{cues=data.mouthCues||[];}),...Object.values(mouthAssets).map(src=>new Promise((resolve,reject)=>{const img=new Image();img.onload=resolve;img.onerror=reject;img.src=src;}))]).then(()=>{ready=true;}).catch(()=>{$('#audio-status').textContent='The introduction is available, but mouth animation could not load.';});
-voice.addEventListener('click',async()=>{if(!audio.paused){audio.pause();return;}voice.disabled=true;try{await prepared;if(audio.ended)audio.currentTime=0;await audio.play();}catch{controls('Try introduction again','▷');$('#audio-status').textContent='Audio could not play. Try again or check your connection.';}finally{voice.disabled=false;}});
-audio.addEventListener('playing',()=>{head.classList.add('engaged');controls('Pause introduction','Ⅱ',true);$('#audio-status').textContent='Introduction playing.';stopMouth();if(ready)animateMouth();});
-audio.addEventListener('pause',()=>{stopMouth();if(!audio.ended)controls(audio.currentTime>0?'Resume introduction':'Hear my introduction','▷');});
-audio.addEventListener('waiting',()=>{stopMouth();controls('Loading introduction…','…');});
-audio.addEventListener('seeking',stopMouth);
-audio.addEventListener('seeked',()=>{if(!audio.paused&&ready){stopMouth();animateMouth();}});
-audio.addEventListener('ended',()=>{stopMouth();controls('Replay introduction','↻');$('#audio-status').textContent='Introduction finished.';});
-audio.addEventListener('error',()=>{stopMouth();controls('Try introduction again','▷');$('#audio-status').textContent='Audio could not load. Check your connection and try again.';});
-
-
-// Native document flow: no pinned scenes, artificial scroll distances, or wheel interception.
-(()=>{
- const root=document.documentElement,body=document.body;
- const toggle=document.querySelector('#motion-toggle');
- const reduced=matchMedia('(prefers-reduced-motion: reduce)');
- const coarse=matchMedia('(pointer: coarse)');
- const tabs=[...document.querySelectorAll('[data-capability]')];
- const panels=[...document.querySelectorAll('.capability-panel')];
- const stage=document.querySelector('.capability-stack');
- let enabled=!reduced.matches,frame=0,maxScroll=1;
- function progress(){frame=0;root.style.setProperty('--progress',Math.min(1,scrollY/maxScroll));}
- function schedule(){if(!frame)frame=requestAnimationFrame(progress);}
- function measure(){maxScroll=Math.max(1,document.documentElement.scrollHeight-innerHeight);schedule();}
- function motion(){body.classList.toggle('motion-off',!enabled);toggle.setAttribute('aria-pressed',String(enabled));toggle.title=enabled?'Turn decorative motion off':'Turn decorative motion on';toggle.innerHTML=`Motion ${enabled?'on':'off'} <span aria-hidden="true">✳</span>`;body.dispatchEvent(new CustomEvent('portfolio-motion',{detail:enabled}));document.querySelectorAll('[data-depth]').forEach(el=>{el.style.setProperty('--lean-x','0deg');el.style.setProperty('--lean-y','0deg');});}
- toggle.addEventListener('click',()=>{enabled=!enabled;motion();});reduced.addEventListener('change',()=>{enabled=!reduced.matches;motion();});
- function select(index,focus=false){tabs.forEach((tab,i)=>{tab.setAttribute('aria-selected',String(i===index));tab.tabIndex=i===index?0:-1;if(focus&&i===index)tab.focus();});panels.forEach((panel,i)=>{const active=i===index;const depth=(i-index+panels.length)%panels.length;panel.classList.toggle('is-active',active);panel.setAttribute('aria-hidden',String(!active));panel.inert=!active;panel.tabIndex=active?0:-1;panel.style.setProperty('--layer',depth);panel.style.zIndex=String(3-depth);});}
- tabs.forEach((tab,i)=>{tab.addEventListener('click',()=>select(i));tab.addEventListener('keydown',event=>{let next;if(event.key==='ArrowDown'||event.key==='ArrowRight')next=(i+1)%tabs.length;if(event.key==='ArrowUp'||event.key==='ArrowLeft')next=(i+tabs.length-1)%tabs.length;if(event.key==='Home')next=0;if(event.key==='End')next=tabs.length-1;if(next!==undefined){event.preventDefault();select(next,true);}});});
- // Pointer depth is bounded; it never changes text position or the document's scroll distance.
- [document.querySelector('.character-space'),document.querySelector('.passport'),stage].forEach(el=>{el.dataset.depth='';el.addEventListener('pointermove',event=>{if(!enabled||coarse.matches||event.pointerType==='touch')return;const box=el.getBoundingClientRect();el.style.setProperty('--lean-x',`${((event.clientY-box.top)/box.height-.5)*-5}deg`);el.style.setProperty('--lean-y',`${((event.clientX-box.left)/box.width-.5)*6}deg`);});el.addEventListener('pointerleave',()=>{el.style.setProperty('--lean-x','0deg');el.style.setProperty('--lean-y','0deg');});});
- addEventListener('scroll',schedule,{passive:true});addEventListener('resize',measure);new ResizeObserver(measure).observe(body);document.fonts?.ready.then(measure);select(0);motion();measure();
-})();
-
-// Sound-reactive light and a restrained greeting nod use the real playback clock.
-(()=>{
- const stage=document.querySelector('.character-stage'),recording=document.querySelector('#intro-audio'),nod=document.querySelector('#character-nod');
- let ac,analyser,samples,energy=0,raf=0,playing=false;
- function motionAllowed(){return !document.body.classList.contains('motion-off');}
- document.querySelector('#voice').addEventListener('click',()=>{try{if(!ac){const AudioEngine=window.AudioContext||window.webkitAudioContext;if(!AudioEngine)return;ac=new AudioEngine();analyser=ac.createAnalyser();analyser.fftSize=256;samples=new Uint8Array(analyser.fftSize);const source=ac.createMediaElementSource(recording);source.connect(analyser);analyser.connect(ac.destination);}if(ac.state==='suspended')ac.resume().catch(()=>{});}catch{}});
- function stop(){cancelAnimationFrame(raf);raf=0;energy=0;nod.removeAttribute('transform');stage.style.setProperty('--voice-energy','0');}
- function draw(){raf=0;if(!playing||recording.paused||recording.ended||!motionAllowed()||document.hidden)return;let power=0;if(analyser){analyser.getByteTimeDomainData(samples);for(const sample of samples){const x=(sample-128)/128;power+=x*x;}power=Math.min(1,Math.sqrt(power/samples.length)*5);}energy+=(power-energy)*.2;stage.style.setProperty('--voice-energy',energy.toFixed(3));const t=recording.currentTime,dip=t<.85?Math.sin(Math.PI*t/.85):0;nod.setAttribute('transform',`translate(0 ${dip*2.5}) rotate(${dip*.65} 475 510)`);raf=requestAnimationFrame(draw);}
- function start(){if(!raf&&playing&&motionAllowed()&&!document.hidden)raf=requestAnimationFrame(draw);}
- recording.addEventListener('playing',()=>{playing=true;start();});['pause','waiting','seeking','ended','error'].forEach(event=>recording.addEventListener(event,()=>{playing=false;stop();}));recording.addEventListener('seeked',()=>{if(!recording.paused&&!recording.ended){playing=true;start();}});document.body.addEventListener('portfolio-motion',event=>event.detail?start():stop());document.addEventListener('visibilitychange',()=>document.hidden?stop():start());
-})();
+$('#contact-form').addEventListener('submit',e=>{e.preventDefault();const form=e.currentTarget;if(!form.reportValidity())return;const values=new FormData(form),subject=`Portfolio enquiry from ${values.get('name')}`,body=`Hi Keerthika,\n\n${values.get('message')}\n\nFrom: ${values.get('name')}\nReply to: ${values.get('email')}`;location.href=`mailto:jainkeerthika006@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;$('#form-status').textContent='Your draft is ready for your email app.';});
