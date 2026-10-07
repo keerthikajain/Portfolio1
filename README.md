@@ -65,3 +65,15 @@ The form opens a filled-in email draft in the visitor's email application. It do
 The source builds without third-party npm dependencies. Browser checks cover full-name visibility and overflow at five viewport widths, capability tab selection and keyboard navigation, every project dialog, audio playback/pause, reduced motion, the motion toggle, and mobile navigation. Deployment configuration is included; this package has not been deployed to your Vercel account.
 
 Character and voice assets come from the portfolio you supplied. The website implementation and CSS project illustrations were created for this standalone version.
+
+## Dark theme, sculpture, and speech revision
+
+The default charcoal theme has a light alternative, remembered in local storage when available. Native scrolling and project content are preserved. The decorative sculpture uses a small local WebGL renderer with lighting, perspective and depth testing; no CDN, paid service or runtime package is required. It renders at a capped pixel ratio, stops animation offscreen or in a hidden tab, and respects reduced motion and the Motion button. A CSS fallback remains available if WebGL cannot initialize or loses its context.
+
+### Why the old mouth felt shaky
+
+The previous mouth PNGs each replaced a rectangular lower-face patch, including parts of the cheeks and chin. Mapping several phonemes to one open-mouth image also lost the distinction between closed consonants, vowels and rounded sounds. The replacement uses a vector mouth layer while leaving the surrounding face still, with eight poses and short transitions calculated directly from the audio playhead. It uses the original female recording unchanged; there is no browser speech synthesis or random mouth timer.
+
+`assets/hero-intro.phonemes.json` contains transcript-guided PocketSphinx 5.0.4 alignment estimates for the original recording. The name pronunciation supplied to the aligner was `K IH R TH IH K AH`. These are estimated phoneme timings, not hand-authored studio visemes. Playback, pause, buffering, seeking, replay and hidden-tab recovery all use the HTML audio element's time and events. Replacing the MP3 requires generating new alignment data.
+
+The character is still a 2D illustration with a small greeting nod, not a fully rigged 3D face. Natural facial motion and head turns matching a talking-head video require an authored animated clip or a properly rigged character. The vector mouth improves shape distinction but does not promise video-quality facial animation.
